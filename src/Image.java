@@ -9,16 +9,21 @@ import java.io.IOException;
  */
 public class Image {
 
-    private static final String IMG_PATH = "pictures/alien.png";
-    private final BufferedImage RawPicture;
+    private BufferedImage rawPicture;
 
     Image(JLabel RawPictureLabel) throws IOException {
         System.out.println("Hello World!");
-         this.RawPicture = ImageIO.read(new File(IMG_PATH));
 
-        ImageIcon icon = new ImageIcon(this.RawPicture);
-        RawPictureLabel.setIcon(icon);
-        RawPictureLabel.revalidate();
-        RawPictureLabel.repaint();
+        JFileChooser chooser = new JFileChooser();
+        chooser.setMultiSelectionEnabled(false);        // allows to select only one file
+
+        if (chooser.showOpenDialog(RawPictureLabel) == JFileChooser.APPROVE_OPTION) {
+            final String rawFilePath = chooser.getSelectedFile().getPath(); //"pictures/alien.png";
+            this.rawPicture = ImageIO.read(new File(rawFilePath));
+            ImageIcon icon = new ImageIcon(this.rawPicture);
+            RawPictureLabel.setIcon(icon);
+            RawPictureLabel.revalidate();
+            RawPictureLabel.repaint();
+        }
     }
 }

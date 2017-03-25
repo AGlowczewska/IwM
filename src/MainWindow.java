@@ -10,7 +10,13 @@ public class MainWindow extends JFrame{
     private JPanel MainWindowPanel;
     private JButton ReadFile;
     private JLabel RawPictureLabel;
-
+    private JButton SimulateButton;
+    private JTextField StepField;
+    private JTextField ProbesField;
+    private JTextField WidthField;
+    private JLabel StepLabel;
+    private JLabel ProbesLabel;
+    private JLabel WidthLabel;
     private Image myImage;
 
     MainWindow(){
@@ -21,7 +27,7 @@ public class MainWindow extends JFrame{
         ReadFile.addActionListener((ActionEvent actionEvent) -> {
             try {
                 this.myImage = new Image(RawPictureLabel);
-
+                ShowOptions();
                 pack();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -31,5 +37,15 @@ public class MainWindow extends JFrame{
 
 
         setVisible(true);
+    }
+
+    private void ShowOptions(){
+        SimulateButton.setVisible(true);
+        StepField.setVisible(true);
+        ProbesField.setVisible(true);
+        WidthField.setVisible(true);
+        StepLabel.setVisible(true);
+        ProbesLabel.setVisible(true);
+        WidthLabel.setVisible(true);
     }
 }
