@@ -8,7 +8,7 @@ import java.io.IOException;
 public class MainWindow extends JFrame{
 
     private JPanel MainWindowPanel;
-    private JButton ReadFile;
+    private JButton ReadFileButton;
     private JLabel RawPictureLabel;
     private JButton SimulateButton;
     private JTextField StepField;
@@ -17,6 +17,7 @@ public class MainWindow extends JFrame{
     private JLabel StepLabel;
     private JLabel ProbesLabel;
     private JLabel WidthLabel;
+    private JLabel SecondPictureLabel;
     private Image myImage;
 
     MainWindow(){
@@ -24,7 +25,7 @@ public class MainWindow extends JFrame{
         setContentPane(MainWindowPanel);
         pack();
 
-        ReadFile.addActionListener((ActionEvent actionEvent) -> {
+        ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
             try {
                 this.myImage = new Image(RawPictureLabel);
                 ShowOptions();
@@ -32,14 +33,20 @@ public class MainWindow extends JFrame{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //MainWindow.super.dispose();
         });
 
+        SimulateButton.addActionListener((ActionEvent actionEvent) -> {
+            if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
+                myImage.CreateSingoram();
+                myImage.CreatePic(SecondPictureLabel);
+            }
+        });
 
         setVisible(true);
     }
 
     private void ShowOptions(){
+
         SimulateButton.setVisible(true);
         StepField.setVisible(true);
         ProbesField.setVisible(true);
