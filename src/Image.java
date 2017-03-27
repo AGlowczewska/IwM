@@ -129,8 +129,8 @@ public class Image {
         int h = image.getHeight();
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                if (image.getRGB(i, j) > topLight) {
-                    topLight = image.getRGB(i, j);
+                if ((image.getRGB(i, j) & 0xFF) > topLight) {
+                    topLight = (image.getRGB(i, j) & 0xFF);
                 }
             }
         }
