@@ -25,7 +25,7 @@ public class MainWindow extends JFrame{
         setContentPane(MainWindowPanel);
         pack();
 
-        ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
+//        ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
             try {
                 this.myImage = new Image(RawPictureLabel);
                 ShowOptions();
@@ -33,14 +33,14 @@ public class MainWindow extends JFrame{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+//        });
 
-        SimulateButton.addActionListener((ActionEvent actionEvent) -> {
+//        SimulateButton.addActionListener((ActionEvent actionEvent) -> {
             if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
                 myImage.CreateSingoram();
                 myImage.VisualizeDetectors(SecondPictureLabel);
             }
-        });
+//        });
 
         setVisible(true);
     }
@@ -54,5 +54,9 @@ public class MainWindow extends JFrame{
         StepLabel.setVisible(true);
         ProbesLabel.setVisible(true);
         WidthLabel.setVisible(true);
+
+        StepField.setText("10");
+        ProbesField.setText("10");
+        WidthField.setText("10");
     }
 }

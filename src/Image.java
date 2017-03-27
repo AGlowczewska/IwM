@@ -32,24 +32,27 @@ public class Image {
     Image(JLabel RawPictureLabel) throws IOException {
         //System.out.println("Hello World!");
 
-        JFileChooser chooser = new JFileChooser();
-        chooser.setMultiSelectionEnabled(false);        // allows to select only one file
+        // TODO: 27.03.2017 Uncomment
+//        JFileChooser chooser = new JFileChooser();
+//        chooser.setMultiSelectionEnabled(false);        // allows to select only one file
 
-        if (chooser.showOpenDialog(RawPictureLabel) == JFileChooser.APPROVE_OPTION) {
-            final String rawFilePath = chooser.getSelectedFile().getPath(); //"pictures/alien.png";
-            this.rawPicture = ImageIO.read(new File(rawFilePath));
-
-            if (rawPicture.getWidth() != rawPicture.getHeight()) {
-                JOptionPane.showMessageDialog(null, "Obrazek musi być kwadratowy!", "Błędne wymiary", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
+//        if (chooser.showOpenDialog(RawPictureLabel) == JFileChooser.APPROVE_OPTION) {
+//            final String rawFilePath = chooser.getSelectedFile().getPath(); //"pictures/alien.png";
+//            this.rawPicture = ImageIO.read(new File(rawFilePath));
+            this.rawPicture = ImageIO.read(new File("/Users/matis11/alien.png"));
+//
+//            if (rawPicture.getWidth() != rawPicture.getHeight()) {
+//                JOptionPane.showMessageDialog(null, "Obrazek musi być kwadratowy!", "Błędne wymiary", JOptionPane.INFORMATION_MESSAGE);
+//                return;
+////            }
 
             ImageIcon icon = new ImageIcon(this.rawPicture);
             RawPictureLabel.setIcon(icon);
             RawPictureLabel.revalidate();
             RawPictureLabel.repaint();
             CalculateTopLight(rawPicture);
-        }
+
+//        }
         pictureWH = rawPicture.getWidth();
     }
 
@@ -108,7 +111,7 @@ public class Image {
         for (int i = 0; i < (360 / step) ; i ++) {
             for (int k = 0; k < sinogramValues.get(i).size(); k++) {
                 float valueSum = sinogramValues.get(i).get(k);
-                Color color = new Color(valueSum % 255, valueSum % 255, valueSum % 255);
+                Color color = new Color(Math.round(valueSum), Math.round(valueSum), Math.round(valueSum));
                 int rgb = color.getRGB() & 0xFF;
 
                 for (int x = currentX; x < (i + 1) * elementWidth; x++) {
@@ -180,7 +183,7 @@ public class Image {
         dy = (y1 < y2) ? (y2 - y1) : (y1 - y2);
 
         SetRGBv(x, y, 255, 0, 0);
-        summary += rawPicture.getRGB(x, y);
+        summary += rawPicture.getRGB(x, y) & 0xFF;
         counter++;
 
         // oś wiodąca OX
@@ -199,7 +202,7 @@ public class Image {
                     d += bi;
                 }
 
-                summary += rawPicture.getRGB(x, y);
+                summary += rawPicture.getRGB(x, y) & 0xFF;
                 SetRGBv(x, y, 255, 0, 0);
                 counter++;
 
@@ -219,12 +222,12 @@ public class Image {
                     d += bi;
                 }
                 SetRGBv(x, y, 255, 0, 0);
-                summary += rawPicture.getRGB(x, y);
+                summary += rawPicture.getRGB(x, y) & 0xFF;
                 counter++;
             }
         }
 
-        float mean = summary / (counter * topLight);
-        meanPixels.add(mean);
+        summary = summary / (counter * topLight);
+        meanPixels.add(summary);
     }
 }
