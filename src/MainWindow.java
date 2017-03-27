@@ -38,7 +38,7 @@ public class MainWindow extends JFrame{
         SimulateButton.addActionListener((ActionEvent actionEvent) -> {
             if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
                 myImage.CreateSingoram();
-                myImage.CreatePic(SecondPictureLabel);
+                myImage.VisualizeDetectors(SecondPictureLabel);
             }
         });
 
