@@ -52,7 +52,6 @@ public class MainWindow extends JFrame{
 
         };
 
-
         ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
             try {
                 this.myImage = new Image(RawPictureLabel);
@@ -65,7 +64,7 @@ public class MainWindow extends JFrame{
 
         SimulateButton.addActionListener((ActionEvent actionEvent) -> {
             if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
-                myImage.CreateSingoram();
+                myImage.CreateSingoram(RawPictureLabel);
             }
         });
 

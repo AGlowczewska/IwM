@@ -22,7 +22,8 @@ public class Image {
     private int width; // l - rozwartość stożka
     private int probes; // n - liczba detektorów
     private int step; //krok alfa układu emiter-detektor
-    private float topLight = 0;
+    private float topLight;
+    private float[][] ValuesTab;
 
     private ArrayList<Float> meanPixels = new ArrayList<>();
     private ArrayList<ArrayList<Float>> sinogramValues = new ArrayList<>();
@@ -83,47 +84,107 @@ public class Image {
         return true;
     }
 
-    public void CreateSingoram() {
+    public void CreateSingoram(JLabel ImageLabel) {
+        sinogramValues.clear();
+        meanPixels.clear();
+
         FinalImage = new BufferedImage(pictureWH, pictureWH, rawPicture.getType());
-
-        /*
-        float rowHeight = pictureWH / sinogramValues.get(0).size();
-        float elementWidth = pictureWH / sinogramValues.size();
-
-
-        int currentX = 0;
-        int currentY = 0;
-
-        for (int i = 0; i < (360 / step) ; i ++) {
-            for (int k = 0; k < sinogramValues.get(i).size(); k++) {
-                float valueSum = sinogramValues.get(i).get(k);
-                Color color = new Color(Math.round(valueSum), Math.round(valueSum), Math.round(valueSum));
-                int rgb = color.getRGB() & 0xFF;
-
-                for (int x = currentX; x < (i + 1) * elementWidth; x++) {
-                    for (int y = currentY; y < (k + 1) * rowHeight; y++) {
-                        sinogram.setRGB(x, y, rgb);
-                    }
-                }
-
-                currentY = (int) ((k + 1) * rowHeight);
+        for (int i=0; i < pictureWH; i++)
+            for(int j = 0; j < pictureWH; j++){
+                Color color = new Color(0, 0, 0);
+                this.FinalImage.setRGB(i, j, color.getRGB());
             }
-            currentX = (int) ((i + 1) * elementWidth);
-        } */
 
-    }
 
-  /*  public void CalculateTopLight(BufferedImage image) {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                if ((image.getRGB(i, j) & 0xFF) > topLight) {
-                    topLight = (image.getRGB(i, j) & 0xFF);
+
+                CalculateTopLight();
+        //System.out.println("TopLight: " + topLight);
+
+        /******** Writing a circle *******************/
+        /******* According on number of steps *******/
+        int radius = (pictureWH % 2 == 0) ? (pictureWH / 2) : ((pictureWH - 1) / 2);
+        int degreesBetweenDetectors = width / (probes - 1); // odleglosc miedzy detektorami w stopniach
+
+        /***** Writing lines detector -emiter on second image*****/
+        Point CurrentPoint;
+        Point CurrentDetector;
+        for (float i = 0; i < 360; i += step) {
+            meanPixels = new ArrayList<>();
+            CurrentPoint = PointOnCircle(i, radius);
+            for (int j = 0; j < probes; j++) {
+                CurrentDetector = PointOnCircle((i + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
+                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y, 2,0);
+            }
+            sinogramValues.add(meanPixels);
+        }
+        /************************************************/
+        ValuesTab = new float [pictureWH][pictureWH];
+        for (int i =0; i< pictureWH; i++)
+            for(int j = 0; j < pictureWH; j++)
+                ValuesTab[i][j] = 0;
+
+        int temp = (int)Math.floor(360/step);
+
+        //System.out.println("Temp size: " + temp);
+
+        for (int i = 0; i < temp; i ++) {
+            CurrentPoint = PointOnCircle((i+1)*step, radius);
+            for (int j = 0; j < sinogramValues.get(i).size(); j++) {
+                //CurrentDetector = PointOnCircle((((i+1)*step) + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
+                double detectorAngle = (i+1)*step + 180 + width - 2*width*j/probes;
+                CurrentDetector = PointOnCircle((float) detectorAngle, radius);
+
+                System.out.println("i:" + i+ " j: " + j + " val: " + sinogramValues.get(i).get(j));
+                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y, 4, sinogramValues.get(i).get(j));
+
+                /*ImageIcon icon = new ImageIcon(this.FinalImage);
+                ImageLabel.setIcon(icon);
+                ImageLabel.revalidate();
+                ImageLabel.repaint(); */
+            }
+        }
+
+        float topValue = 0;
+        for (int i=0;i<pictureWH;i++){
+            for(int k=0;k<pictureWH;k++){
+                float value = ValuesTab[i][k];
+                if(topValue<value) {
+                    topValue = value;
                 }
             }
         }
-    } */
+
+
+         for (int i =0; i< pictureWH; i++)
+            for(int j = 0; j < pictureWH; j++) {
+                System.out.println("i:" + i + ", j: " + j + ": " + (int)ValuesTab[i][j]);
+                int test = (int)(ValuesTab[i][j] * 255 / topValue);
+                Color color = new Color(test,test,test);
+                int temp2 = color.getRGB();
+                this.FinalImage.setRGB(i, j, temp2);
+                ImageIcon icon = new ImageIcon(this.FinalImage);
+                ImageLabel.setIcon(icon);
+                ImageLabel.revalidate();
+                ImageLabel.repaint();
+            }
+
+        System.out.println("Max" + topValue);
+        System.out.println("SinogramValues size: " + sinogramValues.size());
+        System.out.println("MeanPixels size: " + meanPixels.size());
+
+    }
+
+
+    public void CalculateTopLight() {
+        for (int i = 0; i < pictureWH; i++) {
+            for (int j = 0; j < pictureWH; j++) {
+                if ((rawPicture.getRGB(i, j) & 0xFF) > this.topLight) {
+                    this.topLight = (rawPicture.getRGB(i, j) & 0xFF);
+                }
+            }
+        }
+
+    }
 
     private BufferedImage GetCopy(BufferedImage image){
         ColorModel cm = image.getColorModel();
@@ -145,8 +206,8 @@ public class Image {
         /******** Writing a circle *******************/
         /******* According on number of steps *******/
         int radius = (pictureWH % 2 == 0) ? (pictureWH / 2) : ((pictureWH - 1) / 2);
-        int StepInDegrees = 360 / probes;
-        for (float i = 0; i < 360; i += StepInDegrees) {
+
+        for (float i = 0; i < 360; i += step) {
             SetRGBv(PointOnCircle(i, radius).x, PointOnCircle(i, radius).y, 255, 1, 1);
         }
         /************************************************/
@@ -156,13 +217,11 @@ public class Image {
         Point CurrentPoint;
         Point CurrentDetector;
         for (float i = 0; i < 360; i += step) {
-          //  meanPixels.clear();
             CurrentPoint = PointOnCircle(i, radius);
             for (int j = 0; j < probes; j++) {
                 CurrentDetector = PointOnCircle((i + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
-                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y);
+                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y, 1,0);
             }
-          //  sinogramValues.add(meanPixels);
         }
         /************************************************/
 
@@ -187,7 +246,11 @@ public class Image {
         return pictureWH;
     }
 
-    private void BresenhamDraw(int x1, int y1, int x2, int y2) {
+    private void BresenhamDraw(int x1, int y1, int x2, int y2, int flag, float ColourValue) {
+        /***** FLAGS: *************/
+        /***** 1 - colors *********/
+        /***** 2 - counts *********/
+        /***** 3 - recolours ******/
 
         int d, dx, dy, ai, bi, xi, yi;
         int x = x1, y = y1;
@@ -200,10 +263,18 @@ public class Image {
         yi = (y1 < y2) ? 1 : -1;
         dy = (y1 < y2) ? (y2 - y1) : (y1 - y2);
 
-        SetRGBv(x, y, 255, 0, 0);
-        int rgb = rawPicture.getRGB(x, y) & 0xFF;
-        summary += rgb;
-        counter++;
+        if((flag & 1) == flag) SetRGBv(x, y, 255, 0, 0);
+        if((flag & 2) == flag) {
+            int rgb = rawPicture.getRGB(x, y) & 0xFF;
+            summary += rgb;
+            counter++;
+        }
+        if((flag & 4) == flag){
+            //float val = (FinalImage.getRGB(x, y) & 0xFF) + ColourValue;
+            //Color color = new Color(val, val, val);
+            //this.FinalImage.setRGB(x, y, color.getRGB());
+            ValuesTab[x][y] += ColourValue;
+        }
 
         // oś wiodąca OX
         if (dx > dy) {
@@ -221,10 +292,16 @@ public class Image {
                     d += bi;
                 }
 
-                rgb = rawPicture.getRGB(x, y) & 0xFF;
-                summary += rgb;
-                SetRGBv(x, y, 255, 0, 0);
-                counter++;
+                if((flag & 2) == flag) {
+                    int rgb = rawPicture.getRGB(x, y) & 0xFF;
+                    summary += rgb;
+                    counter++;
+                }
+                if((flag & 1) == flag) SetRGBv(x, y, 255, 0, 0);
+                if((flag & 4) == flag){
+                   // float val = (FinalImage.getRGB(x, y) & 0xFF) + ColourValue;
+                    ValuesTab[x][y] += ColourValue;
+                }
 
             }
         } else { // oś wiodąca OY
@@ -241,14 +318,21 @@ public class Image {
                 } else {
                     d += bi;
                 }
-                SetRGBv(x, y, 255, 0, 0);
-                rgb = rawPicture.getRGB(x, y) & 0xFF;
-                summary += rgb;
-                counter++;
+                if((flag & 1) == flag) SetRGBv(x, y, 255, 0, 0);
+                if((flag & 2) == flag) {
+                    int rgb = rawPicture.getRGB(x, y) & 0xFF;
+                    summary += rgb;
+                    counter++;
+                }
+                if((flag & 4) == flag){
+                    //float val = (FinalImage.getRGB(x, y) & 0xFF) + ColourValue;
+                    ValuesTab[x][y] += ColourValue;
+                }
             }
         }
-
-        summary = summary / (counter * topLight);
-        meanPixels.add(summary);
+        if((flag & 2) == flag) {
+            summary = summary / (counter * topLight);
+            meanPixels.add(summary);
+        }
     }
 }
