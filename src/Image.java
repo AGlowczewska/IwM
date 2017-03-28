@@ -183,7 +183,8 @@ public class Image {
         dy = (y1 < y2) ? (y2 - y1) : (y1 - y2);
 
         SetRGBv(x, y, 255, 0, 0);
-        summary += rawPicture.getRGB(x, y) & 0xFF;
+        int rgb = rawPicture.getRGB(x, y) & 0xFF;
+        summary += rgb;
         counter++;
 
         // oś wiodąca OX
@@ -202,7 +203,8 @@ public class Image {
                     d += bi;
                 }
 
-                summary += rawPicture.getRGB(x, y) & 0xFF;
+                rgb = rawPicture.getRGB(x, y) & 0xFF;
+                summary += rgb;
                 SetRGBv(x, y, 255, 0, 0);
                 counter++;
 
@@ -222,7 +224,8 @@ public class Image {
                     d += bi;
                 }
                 SetRGBv(x, y, 255, 0, 0);
-                summary += rawPicture.getRGB(x, y) & 0xFF;
+                rgb = rawPicture.getRGB(x, y) & 0xFF;
+                summary += rgb;
                 counter++;
             }
         }
