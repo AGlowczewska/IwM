@@ -16,6 +16,7 @@ public class Image {
     private BufferedImage rawPicture;
     private BufferedImage secondImage;
     private BufferedImage FinalImage; //image created from sinogram
+    private BufferedImage FilteredImage; //
     private int pictureWH; // picture's width = picture's height
 
     /*****DATA FOR CREATING SINGRAM ****/
@@ -95,9 +96,7 @@ public class Image {
                 this.FinalImage.setRGB(i, j, color.getRGB());
             }
 
-
-
-                CalculateTopLight();
+        CalculateTopLight();
         //System.out.println("TopLight: " + topLight);
 
         /******** Writing a circle *******************/
@@ -130,17 +129,11 @@ public class Image {
         for (int i = 0; i < temp; i ++) {
             CurrentPoint = PointOnCircle((i+1)*step, radius);
             for (int j = 0; j < sinogramValues.get(i).size(); j++) {
-                //CurrentDetector = PointOnCircle((((i+1)*step) + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
                 double detectorAngle = ((i+1)*step+ (360 - width) / 2) + j * degreesBetweenDetectors;
                 CurrentDetector = PointOnCircle((float) detectorAngle, radius);
 
                 System.out.println("i:" + i+ " j: " + j + " val: " + sinogramValues.get(i).get(j));
                 BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y, 4, sinogramValues.get(i).get(j));
-
-                /*ImageIcon icon = new ImageIcon(this.FinalImage);
-                ImageLabel.setIcon(icon);
-                ImageLabel.revalidate();
-                ImageLabel.repaint(); */
             }
         }
 
@@ -154,18 +147,18 @@ public class Image {
             }
         }
 
-         for (int i =0; i< pictureWH; i++)
-            for(int j = 0; j < pictureWH; j++) {
-                System.out.println("i:" + i + ", j: " + j + ": " + (int)ValuesTab[i][j]);
-                int test = (int)(ValuesTab[i][j] * 255 / topValue);
-                Color color = new Color(test,test,test);
-                int temp2 = color.getRGB();
-                this.FinalImage.setRGB(i, j, temp2);
-                ImageIcon icon = new ImageIcon(this.FinalImage);
-                ImageLabel.setIcon(icon);
-                ImageLabel.revalidate();
-                ImageLabel.repaint();
-            }
+         for (int i =0; i< pictureWH; i++) {
+             for (int j = 0; j < pictureWH; j++) {
+                 System.out.println("i:" + i + ", j: " + j + ": " + (int) ValuesTab[i][j]);
+                 int test = (int) (ValuesTab[i][j] * 255 / topValue);
+                 Color color = new Color(test, test, test);
+                 this.FinalImage.setRGB(i, j, color.getRGB());
+                 ImageIcon icon = new ImageIcon(this.FinalImage);
+                 ImageLabel.setIcon(icon);
+                 ImageLabel.revalidate();
+                 ImageLabel.repaint();
+             }
+         }
 
         System.out.println("Max" + topValue);
         System.out.println("SinogramValues size: " + sinogramValues.size());
@@ -173,6 +166,11 @@ public class Image {
 
     }
 
+    public void FilterPicture(JLabel FilteredImageLabel){
+        /********* TO DO **********************/
+        this.FilteredImage = GetCopy(FinalImage);
+
+    }
 
     public void CalculateTopLight() {
         for (int i = 0; i < pictureWH; i++) {

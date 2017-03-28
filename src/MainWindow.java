@@ -22,6 +22,8 @@ public class MainWindow extends JFrame{
     private JLabel ProbesLabel;
     private JLabel WidthLabel;
     private JLabel SecondPictureLabel;
+    private JLabel ThirdPictureLabel;
+    private JLabel FilteredPictureLabel;
     private Image myImage;
 
     private DocumentListener updateSecondPicture;
@@ -64,7 +66,14 @@ public class MainWindow extends JFrame{
 
         SimulateButton.addActionListener((ActionEvent actionEvent) -> {
             if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
-                myImage.CreateSingoram(RawPictureLabel);
+                ThirdPictureLabel.setVisible(true);
+                ThirdPictureLabel.setMinimumSize(new Dimension(myImage.GetWidth(),myImage.GetWidth()));
+                pack();
+                myImage.CreateSingoram(ThirdPictureLabel);
+
+                /************TO DO******************************/
+                myImage.FilterPicture(FilteredPictureLabel);
+                /*************************************************/
             }
         });
 
