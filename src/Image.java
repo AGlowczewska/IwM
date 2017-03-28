@@ -131,7 +131,7 @@ public class Image {
             CurrentPoint = PointOnCircle((i+1)*step, radius);
             for (int j = 0; j < sinogramValues.get(i).size(); j++) {
                 //CurrentDetector = PointOnCircle((((i+1)*step) + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
-                double detectorAngle = (i+1)*step + 180 + width - 2*width*j/probes;
+                double detectorAngle = ((i+1)*step+ (360 - width) / 2) + j * degreesBetweenDetectors;
                 CurrentDetector = PointOnCircle((float) detectorAngle, radius);
 
                 System.out.println("i:" + i+ " j: " + j + " val: " + sinogramValues.get(i).get(j));
@@ -153,7 +153,6 @@ public class Image {
                 }
             }
         }
-
 
          for (int i =0; i< pictureWH; i++)
             for(int j = 0; j < pictureWH; j++) {
