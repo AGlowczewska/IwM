@@ -1,5 +1,9 @@
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 /**
@@ -20,12 +24,36 @@ public class MainWindow extends JFrame{
     private JLabel SecondPictureLabel;
     private Image myImage;
 
+    private DocumentListener updateSecondPicture;
+
     MainWindow(){
         super("Tomograph Simulator");
         setContentPane(MainWindowPanel);
         pack();
 
-//        ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
+        updateSecondPicture = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true)
+                    myImage.VisualizeDetectors(SecondPictureLabel);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true)
+                    myImage.VisualizeDetectors(SecondPictureLabel);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true)
+                    myImage.VisualizeDetectors(SecondPictureLabel);
+            }
+
+        };
+
+
+        ReadFileButton.addActionListener((ActionEvent actionEvent) -> {
             try {
                 this.myImage = new Image(RawPictureLabel);
                 ShowOptions();
@@ -33,14 +61,17 @@ public class MainWindow extends JFrame{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//        });
+        });
 
-//        SimulateButton.addActionListener((ActionEvent actionEvent) -> {
+        SimulateButton.addActionListener((ActionEvent actionEvent) -> {
             if (myImage.SetValues(StepField.getText(),ProbesField.getText(),WidthField.getText()) == true) {
                 myImage.CreateSingoram();
-                myImage.VisualizeDetectors(SecondPictureLabel);
             }
-//        });
+        });
+
+        StepField.getDocument().addDocumentListener(updateSecondPicture);
+        ProbesField.getDocument().addDocumentListener(updateSecondPicture);
+        WidthField.getDocument().addDocumentListener(updateSecondPicture);
 
         setVisible(true);
     }
@@ -55,8 +86,9 @@ public class MainWindow extends JFrame{
         ProbesLabel.setVisible(true);
         WidthLabel.setVisible(true);
 
-        StepField.setText("10");
-        ProbesField.setText("10");
-        WidthField.setText("10");
+        /**** Fix for frame width below *****/
+        StepLabel.setMinimumSize(new Dimension(100,-1));
+        StepField.setPreferredSize(new Dimension(myImage.GetWidth() - 110, -1));
+        /***********************************/
     }
 }

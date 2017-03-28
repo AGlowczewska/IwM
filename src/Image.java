@@ -2,19 +2,20 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static java.awt.image.BufferedImage.TYPE_BYTE_GRAY;
-
 /**
  * Class represents a chosen png file and performs actions on it.
- */
+ **/
 public class Image {
 
     private BufferedImage rawPicture;
     private BufferedImage secondImage;
+    private BufferedImage FinalImage; //image created from sinogram
     private int pictureWH; // picture's width = picture's height
 
     /*****DATA FOR CREATING SINGRAM ****/
@@ -25,38 +26,37 @@ public class Image {
 
     private ArrayList<Float> meanPixels = new ArrayList<>();
     private ArrayList<ArrayList<Float>> sinogramValues = new ArrayList<>();
-    private BufferedImage sinogram;
+
 
     /**********************************/
 
     Image(JLabel RawPictureLabel) throws IOException {
-        //System.out.println("Hello World!");
 
-        // TODO: 27.03.2017 Uncomment
-//        JFileChooser chooser = new JFileChooser();
-//        chooser.setMultiSelectionEnabled(false);        // allows to select only one file
+        JFileChooser chooser = new JFileChooser();
+        chooser.setMultiSelectionEnabled(false);        // allows to select only one file
 
-//        if (chooser.showOpenDialog(RawPictureLabel) == JFileChooser.APPROVE_OPTION) {
-//            final String rawFilePath = chooser.getSelectedFile().getPath(); //"pictures/alien.png";
-//            this.rawPicture = ImageIO.read(new File(rawFilePath));
-            this.rawPicture = ImageIO.read(new File("/Users/matis11/alien.png"));
-//
-//            if (rawPicture.getWidth() != rawPicture.getHeight()) {
-//                JOptionPane.showMessageDialog(null, "Obrazek musi być kwadratowy!", "Błędne wymiary", JOptionPane.INFORMATION_MESSAGE);
-//                return;
-////            }
+        if (chooser.showOpenDialog(RawPictureLabel) == JFileChooser.APPROVE_OPTION) {
+            final String rawFilePath = chooser.getSelectedFile().getPath(); //"pictures/alien.png";
+            this.rawPicture = ImageIO.read(new File(rawFilePath));
+
+            if (rawPicture.getWidth() != rawPicture.getHeight()) {
+                JOptionPane.showMessageDialog(null, "Obrazek musi być kwadratowy!", "Błędne wymiary", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
 
             ImageIcon icon = new ImageIcon(this.rawPicture);
             RawPictureLabel.setIcon(icon);
             RawPictureLabel.revalidate();
             RawPictureLabel.repaint();
-            CalculateTopLight(rawPicture);
+            //CalculateTopLight(rawPicture);
 
-//        }
+        }
         pictureWH = rawPicture.getWidth();
     }
 
     public boolean SetValues(String steps, String probes, String width) {
+        if (steps.length() == 0 || probes.length() ==0 || width.length() == 0) return false;
+
         try {
             this.step = Integer.parseInt(steps);
             this.probes = Integer.parseInt(probes);
@@ -70,40 +70,26 @@ public class Image {
             return false;
         }
 
+        if (this.step <= 0) {
+            JOptionPane.showMessageDialog(null, "Krok musi być dodatni", "Błędne wartości", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
+        if (this.width <= 0) {
+            JOptionPane.showMessageDialog(null, "Rozwartość musi być dodatnia", "Błędne wartości", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
         return true;
     }
 
     public void CreateSingoram() {
-        secondImage = new BufferedImage(pictureWH, pictureWH, rawPicture.getType());
+        FinalImage = new BufferedImage(pictureWH, pictureWH, rawPicture.getType());
 
-        /******** Writing a circle *******************/
-        /******* According on number of steps *******/
-        int radius = (pictureWH % 2 == 0) ? (pictureWH / 2) : ((pictureWH - 1) / 2);
-        int StepInDegrees = 360 / probes;
-        for (float i = 0; i < 360; i += StepInDegrees) {
-            SetRGBv(PointOnCircle(i, radius).x, PointOnCircle(i, radius).y, 255, 1, 1);
-        }
-        /************************************************/
-        int degreesBetweenDetectors = width / (probes - 1); // odleglosc miedzy detektorami w stopniach
-
-        /***** Writing lines detector -emiter *****/
-        Point CurrentPoint;
-        Point CurrentDetector;
-        for (float i = 0; i < 360; i += step) {
-            meanPixels.clear();
-            CurrentPoint = PointOnCircle(i, radius);
-            for (int j = 0; j < probes; j++) {
-                CurrentDetector = PointOnCircle((i + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
-                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y);
-            }
-            sinogramValues.add(meanPixels);
-        }
-        /************************************************/
-
-        sinogram = new BufferedImage(pictureWH, pictureWH, TYPE_BYTE_GRAY);
-
+        /*
         float rowHeight = pictureWH / sinogramValues.get(0).size();
         float elementWidth = pictureWH / sinogramValues.size();
+
 
         int currentX = 0;
         int currentY = 0;
@@ -123,11 +109,11 @@ public class Image {
                 currentY = (int) ((k + 1) * rowHeight);
             }
             currentX = (int) ((i + 1) * elementWidth);
-        }
+        } */
 
     }
 
-    public void CalculateTopLight(BufferedImage image) {
+  /*  public void CalculateTopLight(BufferedImage image) {
         int w = image.getWidth();
         int h = image.getHeight();
         for (int i = 0; i < h; i++) {
@@ -137,19 +123,51 @@ public class Image {
                 }
             }
         }
+    } */
+
+    private BufferedImage GetCopy(BufferedImage image){
+        ColorModel cm = image.getColorModel();
+        boolean isAlphaPremultiplied = image.isAlphaPremultiplied();
+        WritableRaster raster = image.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
     private Point PointOnCircle(float degree, int radius) {
         double angle = degree * Math.PI / 180;
-        int myX = ((int) (Math.cos(angle) * radius) + radius);
-        int myY = ((int) (Math.sin(angle) * radius) + radius);
-        System.out.println("Degree:" + degree + " X: " + myX + " Y: " + myY);
-        return new Point(myX, myY);
+        int pointX = ((int) (Math.cos(angle) * radius) + radius);
+        int pointY = ((int) (Math.sin(angle) * radius) + radius);
+        return new Point(pointX, pointY);
     }
 
-
     public void VisualizeDetectors(JLabel pictureLabel) {
-        ImageIcon icon = new ImageIcon(this.sinogram);
+        secondImage = GetCopy(rawPicture);
+
+        /******** Writing a circle *******************/
+        /******* According on number of steps *******/
+        int radius = (pictureWH % 2 == 0) ? (pictureWH / 2) : ((pictureWH - 1) / 2);
+        int StepInDegrees = 360 / probes;
+        for (float i = 0; i < 360; i += StepInDegrees) {
+            SetRGBv(PointOnCircle(i, radius).x, PointOnCircle(i, radius).y, 255, 1, 1);
+        }
+        /************************************************/
+        int degreesBetweenDetectors = width / (probes - 1); // odleglosc miedzy detektorami w stopniach
+
+        /***** Writing lines detector -emiter on second image*****/
+        Point CurrentPoint;
+        Point CurrentDetector;
+        for (float i = 0; i < 360; i += step) {
+          //  meanPixels.clear();
+            CurrentPoint = PointOnCircle(i, radius);
+            for (int j = 0; j < probes; j++) {
+                CurrentDetector = PointOnCircle((i + (360 - width) / 2) + j * degreesBetweenDetectors, radius);
+                BresenhamDraw(CurrentPoint.x, CurrentPoint.y, CurrentDetector.x, CurrentDetector.y);
+            }
+          //  sinogramValues.add(meanPixels);
+        }
+        /************************************************/
+
+
+        ImageIcon icon = new ImageIcon(this.secondImage);
         pictureLabel.setIcon(icon);
         pictureLabel.revalidate();
         pictureLabel.repaint();
