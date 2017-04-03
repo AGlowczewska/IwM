@@ -87,15 +87,12 @@ public class Image {
         return true;
     }
 
-    public File GetAsFile(String FileName) {
-        File File = null;
+    public void SaveToFile(String FileName) {
         try {
-            File = new File(FileName);
+            final File File = new File(FileName);
             ImageIO.write(FinalImage, "jpg", File);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            return File;
         }
     }
 
