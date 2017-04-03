@@ -87,7 +87,8 @@ public class MainWindow extends JFrame {
                 StudyField.setVisible(true);
                 SeriesField.setVisible(true);
                 InstanceField.setVisible(true);
-
+                StepField.setPreferredSize(new Dimension(myImage.GetWidth() - 20, -1));
+                pack();
 
                 /************TO DO******************************/
                 myImage.FilterPicture(FilteredPictureLabel);
@@ -137,7 +138,7 @@ public class MainWindow extends JFrame {
 
         /**** Fix for frame width below *****/
         StepLabel.setMinimumSize(new Dimension(100, -1));
-        StepField.setPreferredSize(new Dimension(myImage.GetWidth() - 110, -1));
+        StepField.setPreferredSize(new Dimension(myImage.GetWidth() - 100, -1));
         /***********************************/
     }
 }
