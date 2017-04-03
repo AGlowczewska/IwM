@@ -1,10 +1,17 @@
+package pl.iwm;
+
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.io.DicomInputStream;
+import org.dcm4che2.tool.jpg2dcm.Jpg2Dcm;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
+import java.util.jar.Attributes;
 
 /**
  * Created by ola on 25.03.17.
@@ -71,6 +78,14 @@ public class MainWindow extends JFrame{
                 pack();
                 myImage.CreateSingoram(ThirdPictureLabel);
 
+                final File file = myImage.GetAsFile("temp.jpg");
+
+                Jpg2Dcm jpg2Dcm = new Jpg2Dcm();
+                try {
+                    jpg2Dcm.convert(file, new File("dicom.dcm"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 /************TO DO******************************/
                 myImage.FilterPicture(FilteredPictureLabel);
                 /*************************************************/

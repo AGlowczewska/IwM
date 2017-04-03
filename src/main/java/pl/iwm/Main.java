@@ -1,3 +1,4 @@
+package pl.iwm;
 import javax.swing.*;
 
 public class Main {
