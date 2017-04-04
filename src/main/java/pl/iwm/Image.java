@@ -3,12 +3,12 @@ package pl.iwm;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import static pl.iwm.MainWindow.SHARPEN3x3;
 
 /**
  * Class represents a chosen png file and performs actions on it.
@@ -178,8 +178,18 @@ public class Image {
     }
 
     public void FilterPicture(JLabel FilteredImageLabel) {
-        /********* TO DO **********************/
         this.FilteredImage = GetCopy(FinalImage);
+
+        final Kernel kernel = new Kernel(3, 3, SHARPEN3x3);
+        final ConvolveOp cop = new ConvolveOp(kernel,
+                ConvolveOp.EDGE_NO_OP,
+                null);
+
+        BufferedImage dst = GetCopy(FilteredImage);
+        cop.filter(this.FilteredImage, dst);
+        final ImageIcon icon = new ImageIcon(dst);
+        FilteredImageLabel.setVisible(true);
+        FilteredImageLabel.setIcon(icon);
 
     }
 

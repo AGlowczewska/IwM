@@ -15,6 +15,11 @@ import java.io.IOException;
  */
 public class MainWindow extends JFrame {
 
+    public static final float[] SHARPEN3x3 = {
+            0.f, -1.f, 0.f,
+            -1.f, 5.0f, -1.f,
+            0.f, -1.f, 0.f};
+
     private JPanel MainWindowPanel;
     private JButton ReadFileButton;
     private JLabel RawPictureLabel;
