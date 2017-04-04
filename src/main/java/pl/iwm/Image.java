@@ -8,12 +8,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static pl.iwm.MainWindow.SHARPEN3x3;
-
 /**
  * Class represents a chosen png file and performs actions on it.
  **/
 public class Image {
+
+    public static final float[] SHARPEN3x3 = {
+            0.f, -1.f, 0.f,
+            -1.f, 5.0f, -1.f,
+            0.f, -1.f, 0.f};
 
     private BufferedImage rawPicture;
     private BufferedImage secondImage;
